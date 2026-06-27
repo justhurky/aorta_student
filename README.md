@@ -8,6 +8,7 @@ Instead of relying on manual endpoint marking, this system processes raw DICOM f
 
 - **End-to-End Pipeline:** From raw `.dcm` files to annotated PDF reports.
 - **CLI Architecture:** Fully orchestrated through a modular command-line interface (`main.py`).
+- **Dynamic Physical Calibration:** Automatically extracts `PixelSpacing` metadata directly from DICOM headers to calculate precise, real-world measurements in millimeters regardless of image resolution.
 - **HPC Ready:** Configured for remote training on high-performance computing clusters, including the Kronosz server.
 - **Data Privacy Compliant:** All datasets, DICOM files, and model weights are strictly git-ignored to protect sensitive medical data.
 
@@ -23,16 +24,32 @@ The image below is a fully synthetic, non-clinical example created only to demon
 
 ## Project Structure
 
-- `data/`: Core data management.
-  - `dataset/`: Training, validation, and test datasets.
-  - `prediction/`: Inference results and scripts.
-  - `train/`: Training scripts and YAML configuration.
-- `data_prep_scripts/`: Utilities for preparing the data.
-  - `extracted_frames.py`: Converts DICOMs to flat image collections.
-  - `json_to_txt.py`: Converts VoTT JSON labels to YOLO format.
-- `utils/`: Common utilities like logging.
-- `main.py`: The central orchestrator for all pipeline steps.
-- `best.pt`: Optional trained model weights. Model files are intentionally not committed.
+```text
+aorta_student/
+|-- main.py                         # CLI entry point for extract, convert, train, and predict workflows
+|-- requirements.txt                # Python dependencies
+|-- data/
+|   |-- data.yaml                   # YOLO dataset configuration
+|   |-- prediction/
+|   |   `-- model_predictor.py      # Inference, DICOM calibration, measurement, and PDF export
+|   `-- train/
+|       `-- model_training.py       # YOLOv8 training configuration
+|-- data_prep_scripts/
+|   |-- extracted_frames.py         # DICOM-to-frame extraction
+|   `-- json_to_txt.py              # VoTT JSON to YOLO TXT conversion
+|-- docs/
+|   `-- example_output.png          # Synthetic non-clinical visual example
+|-- utils/
+|   `-- logger_setup.py             # Shared logging setup
+|-- config/
+|-- docker/
+|-- inference/
+|-- logs/                           # Runtime logs are ignored except .gitkeep
+|-- reports/                        # Generated reports are ignored except .gitkeep
+`-- tests/
+```
+
+Model weights such as `best.pt`, raw DICOM files, datasets, generated reports, and training outputs are intentionally excluded from version control.
 
 ## Installation
 
@@ -43,46 +60,59 @@ pip install -r requirements.txt
 ## Usage Instructions
 
 ### 1. Extract Frames from DICOM
+
 Converts all DICOM files in a source directory into a flat collection of JPG images.
+
 ```bash
 python main.py extract --input "data/dataset/raw_dicom" --output "data/dataset/all_frames"
 ```
 
 ### 2. Convert Annotations
+
 Converts VoTT JSON exports to YOLO TXT format.
+
 ```bash
 python main.py convert --input "path/to/json/folder" --output "data/dataset/labels"
 ```
 
 ### 3. Train the Model
+
 Trains a YOLO model using the prepared dataset. Results are saved in the `runs/` directory.
+
 ```bash
 python main.py train --model yolov8n.pt --input "data/data.yaml"
 ```
 
-### 4. Run Prediction (Inference)
-Performs detection and measures horizontal distances. Generates annotated images and a PDF report.
+### 4. Run Prediction
+
+Performs detection, extracts DICOM calibration metadata when available, measures horizontal distances in millimeters, and generates annotated images plus a PDF report.
 
 **Single Image:**
+
 ```bash
-python main.py predict --mode single --input "data/dataset/test/images/frame_0010.jpg" --model best.pt --dicom "data/dataset/raw_dicom/A0009 (PW poststent hyperemia from LAT) másolata"
+python main.py predict --mode single --input "data/dataset/test/images/frame_0010.jpg" --model best.pt --dicom "data/dataset/raw_dicom/sample_reference.dcm"
 ```
 
-**Batch (Directory):**
+**Batch Directory:**
+
 ```bash
-python main.py predict --mode batch --input "data/dataset/test/images" --model best.pt --dicom "data/dataset/raw_dicom/A0009 (PW poststent hyperemia from LAT) másolata"
+python main.py predict --mode batch --input "data/dataset/test/images" --model best.pt --dicom "data/dataset/raw_dicom/sample_reference.dcm"
 ```
 
 **Video:**
+
 ```bash
 python main.py predict --mode video --input "data/dataset/test/videos/sample.mp4" --model best.pt
 ```
 
 ## Kronosz HPC Setup
+
 To run the training on the Kronosz server, ensure all dependencies are installed and use the `train` command. The results will be stored in the `runs/detect/train/` folder.
 
 ## Git Ignore
-The following folders are excluded from version control:
+
+The following artifacts are excluded from version control:
+
 - datasets and DICOM files
 - trained model weights
 - runtime logs, reports, predictions, and training runs
