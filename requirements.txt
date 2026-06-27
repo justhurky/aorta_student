@@ -1,0 +1,13 @@
+opencv-python
+pydicom
+numpy
+
+ultralytics
+torch
+torchvision
+
+pandas
+openpyxl
+
+fpdf2
+tqdm

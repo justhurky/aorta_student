@@ -1,0 +1,8 @@
+path: data/dataset
+
+train: train/images
+val: val/images
+test: test/images
+
+nc: 2
+names: ['rec1', 'rec2']

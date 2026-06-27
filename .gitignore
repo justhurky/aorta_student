@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+
+# Runtime output
+logs/*
+!logs/.gitkeep
+reports/*
+!reports/.gitkeep
+runs/
+prediction_results/
+data/prediction/*
+!data/prediction/model_predictor.py
+
+# Datasets, medical images, and model artifacts
+dataset/
+data/dataset/
+*.dcm
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+*.pt
+*.onnx
+*.pdf
+*.xlsx
