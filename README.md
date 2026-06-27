@@ -1,6 +1,25 @@
 # Medical Imaging: YOLO-based Measurement and DICOM Analytics
 
-This project is a professional medical imaging pipeline designed to process DICOM files, extract frames, manage annotations, and perform distance measurements using YOLO object detection.
+This project is a professional computer vision pipeline designed to automate object detection and physical distance measurements directly from raw medical imaging data.
+
+Instead of relying on manual endpoint marking, this system processes raw DICOM files, extracts frames, and uses a custom-trained YOLOv8 model to identify specific anatomical or device endpoints, such as coronary angiography measurement points. It calculates real-world horizontal distances between detected points and automatically generates comprehensive PDF reports for clinical or analytical review.
+
+**Key Features:**
+
+- **End-to-End Pipeline:** From raw `.dcm` files to annotated PDF reports.
+- **CLI Architecture:** Fully orchestrated through a modular command-line interface (`main.py`).
+- **HPC Ready:** Configured for remote training on high-performance computing clusters, including the Kronosz server.
+- **Data Privacy Compliant:** All datasets, DICOM files, and model weights are strictly git-ignored to protect sensitive medical data.
+
+## Tech Stack
+
+Python 3.x, Ultralytics YOLOv8, OpenCV, pydicom for DICOM parsing, PyTorch with CUDA-enabled training, pandas, and fpdf2.
+
+## Example Output
+
+The image below is a fully synthetic, non-clinical example created only to demonstrate the expected visual output format. Real DICOM data and trained model weights are intentionally excluded from the repository.
+
+![Synthetic YOLO measurement output](docs/example_output.png)
 
 ## Project Structure
 
